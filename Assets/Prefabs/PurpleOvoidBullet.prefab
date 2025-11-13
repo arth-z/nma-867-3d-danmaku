@@ -126,8 +126,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e27106b5e65a46428f0e96ae1756c64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletMovement
-  direction: {x: 1, y: 1, z: 1}
-  speed: 2
-  accelDirection: {x: 1, y: 1, z: 1}
-  delta_speed: 2
-  lifespan: 20

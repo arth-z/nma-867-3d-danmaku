@@ -76,7 +76,6 @@ public class PlayerMovement : MonoBehaviour
         // Clamp pitch to avoid issues and sign flips at +/- 90
         v = Mathf.Clamp(v, -89, 89);
 
-
         // spherical coordinates because euler rotations cause some weeeeeird stuff
         var theta = h * Mathf.Deg2Rad;
         var phi = v * Mathf.Deg2Rad;
@@ -107,17 +106,16 @@ public class PlayerMovement : MonoBehaviour
         if (accel != Vector3.zero) accel.Normalize(); 
         accel *= delta_speed;
 
+
+        transform.position += dashCoeff * Time.deltaTime * velocity + (0.5f * Time.deltaTime * Time.deltaTime * accel);
+
         // change velocity by acceleration
         velocity += accel * Time.deltaTime;
         // air resistance or something
         velocity /= 1 + drag * Time.deltaTime;
 
         print(velocity.magnitude);
-    }
 
-    void Move()
-    {
-        transform.position += dashCoeff * Time.deltaTime * velocity;
     }
 
     void Focus()
@@ -150,15 +148,10 @@ public class PlayerMovement : MonoBehaviour
             dashTimer += Time.deltaTime;
             dashCoeff = dashCoeff >= 3f ? 3f : dashCoeff + dashTimer * 1500f * Time.deltaTime;
         }
-        else if (dashing)
-        {
-            if (dashCoeff > 1.5f) dashCoeff -= Time.deltaTime * 2f;
-            else dashCoeff = 1.5f;
-        }
         else
         {
-            if (dashCoeff > 1f) dashCoeff -= Time.deltaTime * 2f;
-            dashCoeff = 1f;
+            if (dashCoeff > 1.5f) dashCoeff -= Time.deltaTime * 2f;
+            if (dashing) {dashCoeff = 1.5f;} else {dashCoeff = 1f;}
         }
     }
 
@@ -169,7 +162,6 @@ public class PlayerMovement : MonoBehaviour
         MouseLook();
         DashUpdate();
         MotionControl();
-        Move();
 
     }
 

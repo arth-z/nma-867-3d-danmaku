@@ -4,18 +4,19 @@ using static BulletLibrary;
 public class BulletSpawner : MonoBehaviour
 {
     public GameObject bulletPrefab;
-    public Vector3 bulletDirection = new Vector3(0f, 0f, 0f);
-    public float bulletSpeed = 1f;
-    public Vector3 bulletAccelDirection = new Vector3(0f, 0f, 0f);
-    public float bulletDeltaSpeed = 0f;
-    public float fireInterval = 0.1f; // time between bullets
-    public float fireTimer = 0f;
+    Vector2 bulletDirection = new Vector2(0f, 0f);
+    float bulletSpeed = 25f;
+    Vector2 bulletAccelDirection = new Vector2(0f, 0f);
+    float bulletDeltaSpeed = 0f;
+    float fireInterval = 0.00011f; // time between bullets
+    float fireTimer = 0f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        BulletController bc = bulletPrefab.GetComponent<BulletController>();
-        }
+        if (bulletPrefab == null) Debug.LogError("BulletSpawner: No bullet prefab assigned");
+        if (bulletPrefab.scene.IsValid()) Debug.LogError("BulletSpawner: Bullet prefab is in scene, not project assets");
+    }
 
     // Update is called once per frame
     void Update()
@@ -23,12 +24,12 @@ public class BulletSpawner : MonoBehaviour
         fireTimer += Time.deltaTime;
         if (fireTimer >= fireInterval)
         {
-            SpawnBulletFixedSpeed(bulletPrefab, transform.position, bulletDirection, bulletSpeed, 20f);
-            SpawnBulletFixedSpeed(bulletPrefab, transform.position, bulletDirection + new Vector3(90, 0, 0), bulletSpeed, 20f);
-            SpawnBulletFixedSpeed(bulletPrefab, transform.position, -bulletDirection, bulletSpeed, 20f);
-            SpawnBulletFixedSpeed(bulletPrefab, transform.position, -bulletDirection + new Vector3(90, 0, 0), bulletSpeed, 20f);
-
-            bulletDirection += new Vector3(0f, 10f, 10f); // rotate bullet direction for next shot
+            bulletDirection += new Vector2(11f, 7f);
+            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, bulletDirection, bulletSpeed, 5f);
+            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, -bulletDirection, bulletSpeed, 5f);
+            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, new Vector2(bulletDirection.x + 90, bulletDirection.y + 90), bulletSpeed, 5f);
+            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, new Vector2(bulletDirection.x - 90, bulletDirection.y - 90), bulletSpeed, 5f);
+            
             fireTimer = 0f;
         }
     }

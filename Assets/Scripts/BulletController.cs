@@ -3,85 +3,90 @@ using UnityEngine;
 public class BulletController : MonoBehaviour
 {
 
-    public Vector3 angles; // this is not a direction vector!!! these are direction cosine angles!!!
-    public float speed;
+    Vector2 anglesThetaPhi;
+    float speed;
     Vector3 velocity;
-    public Vector3 accelAngles;
-    public float delta_speed;
+
+    Vector2 accelAnglesThetaPhi;
+    float delta_speed;
     Vector3 accel;
 
-    public float lifespan = 20f;
-    public bool willExpire = true;
+    float lifespan;
+    bool willExpire;
 
     Collider col;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        updateVelocity();
-        updateAccel();
+        transform.forward = velocity.normalized; // face the direction you're going
         col = GetComponent<Collider>();
     }
 
     void Move()
     {
         transform.forward = velocity.normalized; // face the direction you're going
-        velocity += accel * Time.deltaTime; // go at your speed
-        transform.position += velocity * Time.deltaTime; // accelerate if required
+        transform.position += velocity * Time.deltaTime + accel * (0.5f * Time.deltaTime * Time.deltaTime); // go in that direction according to that one kinematics eqn
+        velocity += accel * Time.deltaTime; // update velocity
     }
 
     void Lifespan()
     {
         lifespan -= Time.deltaTime;
-        if (lifespan <= 0f && willExpire)
+        if (lifespan < 0f && willExpire)
         {
             Destroy(gameObject);
         }
     }
 
-    void updateVelocity()
+    public void updateVelocity()
     {
-        Vector3 radAngles = new Vector3(angles.x * Mathf.Deg2Rad, angles.y * Mathf.Deg2Rad, angles.z * Mathf.Deg2Rad);
+        // Only X and Y angles are used for direction; Z is ignored
+        var radAngles = Mathf.Deg2Rad * anglesThetaPhi;
+        // Convert spherical angles to Cartesian coordinates
         velocity = new Vector3(
-            Mathf.Cos(radAngles.x) * speed,
-            Mathf.Sin(radAngles.y) * speed,
-            Mathf.Cos(radAngles.z) * speed
-        );
+            Mathf.Cos(radAngles.y) * Mathf.Cos(radAngles.x),
+            Mathf.Sin(radAngles.x),
+            Mathf.Sin(radAngles.y) * Mathf.Cos(radAngles.x)
+        ) * speed;
     }
 
-    void updateAccel()
+    public void updateAccel()
     {
-        Vector3 radAccelAngles = new Vector3(accelAngles.x * Mathf.Deg2Rad, accelAngles.y * Mathf.Deg2Rad, accelAngles.z * Mathf.Deg2Rad);
+        // Only X and Y angles are used for direction; Z is ignored
+        var radAngles = Mathf.Deg2Rad * accelAnglesThetaPhi;
+        // Convert spherical angles to Cartesian coordinates
         accel = new Vector3(
-            Mathf.Cos(radAccelAngles.x) * delta_speed,
-            Mathf.Sin(radAccelAngles.y) * delta_speed,
-            Mathf.Cos(radAccelAngles.z) * delta_speed
-        );
+            Mathf.Cos(radAngles.y) * Mathf.Cos(radAngles.x),
+            Mathf.Sin(radAngles.x),
+            Mathf.Sin(radAngles.y) * Mathf.Cos(radAngles.x)
+        ) * delta_speed;
     }
 
-    // note: this accepts 3-tuple of ANGLES in degrees
-    public void setAngles(Vector3 newAngles)
+    // note: this accepts 2-tuples of angles (spherical coords: theta, phi)
+    public void setSphericalRotation(Vector2 newThetaPhi)
     {
-        angles = newAngles;
-        updateVelocity();
+        anglesThetaPhi = newThetaPhi;
+    }
+
+    public void setDirection(Vector3 newDirection)
+    {
+        velocity = newDirection.normalized * speed;
     }
 
     public void setSpeed(float newSpeed)
     {
         speed = newSpeed;
-        updateVelocity();
     }
 
-    public void setAngleAccel(Vector3 newDirection)
+    public void setSphericalRotationAccel(Vector2 newThetaPhi)
     {
-        accelAngles = newDirection;
-        updateAccel();
+        accelAnglesThetaPhi = newThetaPhi;
     }
 
     public void setDeltaSpeed(float newDeltaSpeed)
     {
         delta_speed = newDeltaSpeed;
-        updateAccel();
     }
 
     public void setLifespan(float newLifespan)
