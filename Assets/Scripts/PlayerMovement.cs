@@ -23,10 +23,15 @@ public class PlayerMovement : MonoBehaviour
     float NORMAL_SPEED = 500f;
     float delta_speed;
 
+    // dashing
     float dashTimer = 0.3f;
     float dashCoeff = 1f;
+    bool dashing = false;
 
-    float friction = 1.2f;
+    Rigidbody rb;
+
+    float drag;
+    float AIR_RES = 5f;
     Vector3 velocity = new Vector3(0, 0, 0);
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -44,7 +49,8 @@ public class PlayerMovement : MonoBehaviour
         focusAction.canceled += ctx => Unfocus();
 
         dashAction = InputSystem.actions.FindAction("Dash");
-        dashAction.performed += ctx => Dash();
+        dashAction.started += ctx => Dash();
+        dashAction.canceled += ctx => StopDash();
 
         clickAction = InputSystem.actions.FindAction("Attack");
         clickAction.performed += ctx => Attack();
@@ -54,8 +60,10 @@ public class PlayerMovement : MonoBehaviour
         moveVertical.Enable();
         focusAction.Enable();
         clickAction.Enable();
+        dashAction.Enable();
 
         delta_speed = NORMAL_SPEED;
+        drag = AIR_RES;
     }
 
     void MouseLook()
@@ -86,86 +94,94 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(fwd, up);
     }
 
-    void Move()
+    void MotionControl()
     {
         Vector2 movementH = moveHorizontal.ReadValue<Vector2>();
+        Vector2 movementV = moveVertical.ReadValue<Vector2>();
         f = movementH.y;
         s = movementH.x;
-        Vector3 accel = new Vector3(0, 0, 0);
-
-        if (f != 0)
-        {
-            accel += transform.forward * f * Time.deltaTime * delta_speed;
-        }
-
-        if (s != 0) 
-        {
-            accel += transform.right * s * Time.deltaTime * delta_speed;
-        }
- 
-
-        Vector2 movementV = moveVertical.ReadValue<Vector2>();
         up = movementV.y;
 
-        if (up != 0) 
-        {
-            accel += transform.up * up * Time.deltaTime * delta_speed;
-        }
+        // construct acceleration unit vector from inputs and normalise it, then multiply it by delta_speed
+        Vector3 accel = transform.forward * f + transform.right * s + transform.up * up;
+        if (accel != Vector3.zero) accel.Normalize(); 
+        accel *= delta_speed;
 
-        accel = accel.normalized * delta_speed;
-
+        // change velocity by acceleration
         velocity += accel * Time.deltaTime;
-        velocity /= friction; // air res
-        if (velocity.magnitude < 0)
-        {
-            velocity = new Vector3(0, 0, 0);
-        }
+        // air resistance or something
+        velocity /= 1 + drag * Time.deltaTime;
 
-        transform.position += velocity * dashCoeff * Time.deltaTime;
+        print(velocity.magnitude);
+    }
 
+    void Move()
+    {
+        transform.position += dashCoeff * Time.deltaTime * velocity;
     }
 
     void Focus()
     {
-        friction = 1.3f;
+        drag = AIR_RES*4f;
         delta_speed = NORMAL_SPEED * 0.7f;
     }
 
     void Unfocus()
     {
-        friction = 1.1f;
+        drag = AIR_RES;
         delta_speed = NORMAL_SPEED;
     }
 
     void Dash()
     {
         if (dashTimer >= 0.3f) dashTimer = 0f;
+        dashing = true;
     }
-    
+
+    void StopDash()
+    {
+        dashing = false;
+    }
+
     void DashUpdate()
     {
         if (dashTimer < 0.3f)
         {
             dashTimer += Time.deltaTime;
-            dashCoeff = 3f;
+            dashCoeff = dashCoeff >= 3f ? 3f : dashCoeff + dashTimer * 1500f * Time.deltaTime;
+        }
+        else if (dashing)
+        {
+            if (dashCoeff > 1.5f) dashCoeff -= Time.deltaTime * 2f;
+            else dashCoeff = 1.5f;
         }
         else
         {
+            if (dashCoeff > 1f) dashCoeff -= Time.deltaTime * 2f;
             dashCoeff = 1f;
         }
     }
+
 
     // Update is called once per frame
     void Update()
     {
         MouseLook();
         DashUpdate();
+        MotionControl();
         Move();
+
+    }
+
+    // update is called after all Update functions have been called
+    void LateUpdate()
+    {
+
     }
 
     void FixedUpdate()
     {
-        
+
     }
 
     void Attack()
