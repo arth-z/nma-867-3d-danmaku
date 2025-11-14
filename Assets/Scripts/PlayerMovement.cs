@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     float up = 0; // up/down
     float NORMAL_SPEED = 500f;
     float delta_speed;
+    Vector3 accel;
 
     // dashing
     float dashTimer = 0.3f;
@@ -29,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
     bool dashing = false;
 
     Rigidbody rb;
+    Collider col;
 
     float drag;
     float AIR_RES = 5f;
@@ -64,6 +66,9 @@ public class PlayerMovement : MonoBehaviour
 
         delta_speed = NORMAL_SPEED;
         drag = AIR_RES;
+
+        rb = GetComponent<Rigidbody>();
+        col = GetComponent<Collider>();
     }
 
     void MouseLook()
@@ -106,7 +111,6 @@ public class PlayerMovement : MonoBehaviour
         if (accel != Vector3.zero) accel.Normalize(); 
         accel *= delta_speed;
 
-
         transform.position += dashCoeff * Time.deltaTime * velocity + (0.5f * Time.deltaTime * Time.deltaTime * accel);
 
         // change velocity by acceleration
@@ -114,7 +118,6 @@ public class PlayerMovement : MonoBehaviour
         // air resistance or something
         velocity /= 1 + drag * Time.deltaTime;
 
-        print(velocity.magnitude);
 
     }
 
@@ -150,7 +153,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            if (dashCoeff > 1.5f) dashCoeff -= Time.deltaTime * 2f;
+            if (dashCoeff > 1.5f) dashCoeff -= Time.deltaTime;
             if (dashing) {dashCoeff = 1.5f;} else {dashCoeff = 1f;}
         }
     }
@@ -173,10 +176,19 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-
     }
 
     void Attack()
     {
+    }
+
+    public void OnCollisionEnter(Collision other)
+    {
+        print("collided");
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        print("triggered");
     }
 }

@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 public class BulletController : MonoBehaviour
@@ -15,11 +16,17 @@ public class BulletController : MonoBehaviour
     bool willExpire;
 
     Collider col;
+    Rigidbody rb;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         transform.forward = velocity.normalized; // face the direction you're going
+    }
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
     }
 
@@ -28,6 +35,27 @@ public class BulletController : MonoBehaviour
         transform.forward = velocity.normalized; // face the direction you're going
         transform.position += velocity * Time.deltaTime + accel * (0.5f * Time.deltaTime * Time.deltaTime); // go in that direction according to that one kinematics eqn
         velocity += accel * Time.deltaTime; // update velocity
+    }
+    
+    void PhysicsMove()
+    {
+        float dt = Time.fixedDeltaTime;
+        Vector3 nextVelocity = velocity + accel * dt;
+        Vector3 displacement = velocity * dt + 0.5f * accel * dt * dt;
+
+        if (rb != null)
+        {
+            rb.MovePosition(rb.position + displacement);
+            if (nextVelocity.sqrMagnitude > 1e-6f)
+                rb.rotation = Quaternion.LookRotation(nextVelocity.normalized);
+        }
+        else
+        {
+            transform.position += displacement;
+            if (nextVelocity.sqrMagnitude > 1e-6f) transform.forward = nextVelocity.normalized;
+        }
+
+        velocity = nextVelocity;
     }
 
     void Lifespan()
@@ -97,7 +125,7 @@ public class BulletController : MonoBehaviour
     public void setExpiry(bool doesExpire)
     {
         willExpire = doesExpire;
-    }   
+    }
 
     // Update is called once per frame
     void Update()
@@ -105,4 +133,9 @@ public class BulletController : MonoBehaviour
         Move();
         Lifespan();
     }
+
+    void FixedUpdate()
+    {
+    }
+
 }
