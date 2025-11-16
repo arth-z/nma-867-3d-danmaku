@@ -129,10 +129,31 @@ public class BulletController : MonoBehaviour
     {
         Move();
         Lifespan();
+        FastCollisionCheck();
     }
 
     void FixedUpdate()
     {
+    }
+
+    void FastCollisionCheck()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, velocity.normalized, out hit, speed * Time.deltaTime))
+        {
+            // handle collision
+            if (hit.collider != null)
+            {
+                if (hit.collider.tag == "Player")
+                {
+                    PlayerController player = hit.collider.gameObject.GetComponent<PlayerController>();
+                    if (player != null)
+                    {
+                        player.TakeDamage(this);
+                    }
+                }
+            }
+        }
     }
 
 }

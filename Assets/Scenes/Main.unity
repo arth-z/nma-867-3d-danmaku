@@ -1032,6 +1032,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5015af4f46d9634aad94d70b3eaa1c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  bulletSpawner: {fileID: 1907416249}
   playerObject: {fileID: 483622542}
 --- !u!1 &1907416247
 GameObject:

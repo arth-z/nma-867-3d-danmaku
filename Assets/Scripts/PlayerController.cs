@@ -231,20 +231,25 @@ public class PlayerController : MonoBehaviour
     {
     }
 
-    public void OnTriggerEnter(Collider other)
+    public void TakeDamage(BulletController bulletOther)
     {
         if (iFrameTimer == 0f)
         {
-            // only react if a hostile bullet
-            BulletController bulletOther = other.GetComponent<BulletController>();
-            if (bulletOther == null) return;
-            if (bulletOther.isFriendly()) return;
-
             impulse.GenerateImpulseAtPositionWithVelocity(transform.position, bulletOther.getVelocity().normalized);
             health -= 1;
             print(health);
             if (health <= 0) Destroy(gameObject);
             iFrameTimer = 2f;
         }
+    }
+
+    // hit to handle slow bullets -- see BulletController.cs to see how fast bullets are handled
+    public void OnTriggerEnter(Collider other)
+    {
+        if (iFrameTimer != 0f) return;
+        BulletController bulletOther = other.GetComponent<BulletController>();
+        if (bulletOther == null) return;
+        if (bulletOther.isFriendly()) return;
+        TakeDamage(bulletOther);
     }
 }

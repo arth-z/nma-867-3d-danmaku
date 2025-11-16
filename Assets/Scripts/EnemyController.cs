@@ -15,6 +15,8 @@ public class EnemyController : MonoBehaviour
     bool aggressive = false;
     bool dashing = false;
 
+    public BulletSpawner bulletSpawner;
+
 
     Rigidbody rb;
     Collider col;
@@ -40,6 +42,11 @@ public class EnemyController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         player = playerObject.GetComponent<PlayerController>();
+
+        bulletSpawner.setPlayer(player);
+        bulletSpawner.setController(this);
+        bulletSpawner.SetPatternToFire(bulletSpawner.FireLaser);
+
     }
 
     void MotionControl()
@@ -65,9 +72,12 @@ public class EnemyController : MonoBehaviour
             Vector3 toPlayer = (playerPosition - transform.position).normalized;
             float distanceToPlayer = toPlayer.magnitude;
 
-            if (behaviourTimer > 1.5f)
+            if (behaviourTimer > 1.5f && distanceToPlayer < 300f)
             {
                 accel = -toPlayer * delta_speed;
+            } else if (behaviourTimer > 1.5f)
+            {
+                accel = BulletLibrary.RandomOrthogonalVector(toPlayer).normalized * delta_speed;
             }
 
             if (player.getDashCoeff() > 1.5f)
@@ -83,44 +93,6 @@ public class EnemyController : MonoBehaviour
             
         }
     }
-
-    void Focus()
-    {
-        drag = AIR_RES*4f;
-        delta_speed = NORMAL_SPEED * 0.7f;
-    }
-
-    void Unfocus()
-    {
-        drag = AIR_RES;
-        delta_speed = NORMAL_SPEED;
-    }
-
-    void Dash()
-    {
-        if (dashTimer >= 0.3f) dashTimer = 0f;
-        dashing = true;
-    }
-
-    void StopDash()
-    {
-        dashing = false;
-    }
-
-    void DashUpdate()
-    {
-        if (dashTimer < 0.3f)
-        {
-            dashTimer += Time.deltaTime;
-            dashCoeff = dashCoeff >= 3f ? 3f : dashCoeff + dashTimer * 1500f * Time.deltaTime;
-        }
-        else
-        {
-            if (dashCoeff > 1.5f) dashCoeff -= Time.deltaTime;
-            if (dashing) {dashCoeff = 1.5f;} else {dashCoeff = 1f;}
-        }
-    }
-
     void IFrameUpdate()
     {
         if (iFrameTimer > 0f)
@@ -134,8 +106,7 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         ReactToPlayerPhase1();
-        DashUpdate();
-        MotionControl();
+        //MotionControl();
         IFrameUpdate();
     }
 
@@ -149,8 +120,9 @@ public class EnemyController : MonoBehaviour
     {
     }
 
-    void Attack()
+    public Vector3 getVelocity()
     {
+        return velocity;
     }
 
     public void OnTriggerEnter(Collider other)
