@@ -18,6 +18,8 @@ public class BulletController : MonoBehaviour
     Collider col;
     Rigidbody rb;
 
+    bool friendly = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -37,26 +39,6 @@ public class BulletController : MonoBehaviour
         velocity += accel * Time.deltaTime; // update velocity
     }
     
-    void PhysicsMove()
-    {
-        float dt = Time.fixedDeltaTime;
-        Vector3 nextVelocity = velocity + accel * dt;
-        Vector3 displacement = velocity * dt + 0.5f * accel * dt * dt;
-
-        if (rb != null)
-        {
-            rb.MovePosition(rb.position + displacement);
-            if (nextVelocity.sqrMagnitude > 1e-6f)
-                rb.rotation = Quaternion.LookRotation(nextVelocity.normalized);
-        }
-        else
-        {
-            transform.position += displacement;
-            if (nextVelocity.sqrMagnitude > 1e-6f) transform.forward = nextVelocity.normalized;
-        }
-
-        velocity = nextVelocity;
-    }
 
     void Lifespan()
     {
@@ -125,6 +107,21 @@ public class BulletController : MonoBehaviour
     public void setExpiry(bool doesExpire)
     {
         willExpire = doesExpire;
+    }
+
+    public void setFriendly(bool isFriendly)
+    {
+        friendly = isFriendly;
+    }
+
+    public bool isFriendly()
+    {
+        return friendly;
+    }
+
+    public Vector3 getVelocity()
+    {
+        return velocity;
     }
 
     // Update is called once per frame

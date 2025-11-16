@@ -2,7 +2,7 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
 
     // for mouselook
@@ -31,6 +31,11 @@ public class PlayerMovement : MonoBehaviour
 
     Rigidbody rb;
     Collider col;
+
+    // gameplay systems
+    int health = 10;
+    float iFrameTimer = 0f;
+    CinemachineImpulseSource impulse;
 
     float drag;
     float AIR_RES = 5f;
@@ -69,6 +74,7 @@ public class PlayerMovement : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
+        impulse = GetComponent<CinemachineImpulseSource>();
     }
 
     void MouseLook()
@@ -107,7 +113,7 @@ public class PlayerMovement : MonoBehaviour
         up = movementV.y;
 
         // construct acceleration unit vector from inputs and normalise it, then multiply it by delta_speed
-        Vector3 accel = transform.forward * f + transform.right * s + transform.up * up;
+        accel = transform.forward * f + transform.right * s + transform.up * up;
         if (accel != Vector3.zero) accel.Normalize(); 
         accel *= delta_speed;
 
@@ -158,6 +164,49 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void IFrameUpdate()
+    {
+        if (iFrameTimer > 0f)
+        {
+            iFrameTimer -= Time.deltaTime;
+            if (iFrameTimer < 0f) iFrameTimer = 0f;
+        }
+    }
+
+    public Vector3 getVelocity()
+    {
+        return velocity;
+    }
+
+    public Vector3 getAccel()
+    {
+        return accel;
+    }
+
+    public Vector3 getPosition()
+    {
+        return transform.position;
+    }
+
+    public Vector3 getForward()
+    {
+        return transform.forward;
+    }
+
+    public float getDeltaSpeed()
+    {
+        return delta_speed;
+    }
+
+    public float getDashCoeff()
+    {
+        return dashCoeff;
+    }
+
+    public float getDashTimer()
+    {
+        return dashTimer;
+    }
 
     // Update is called once per frame
     void Update()
@@ -165,7 +214,7 @@ public class PlayerMovement : MonoBehaviour
         MouseLook();
         DashUpdate();
         MotionControl();
-
+        IFrameUpdate();
     }
 
     // update is called after all Update functions have been called
@@ -182,13 +231,20 @@ public class PlayerMovement : MonoBehaviour
     {
     }
 
-    public void OnCollisionEnter(Collision other)
-    {
-        print("collided");
-    }
-
     public void OnTriggerEnter(Collider other)
     {
-        print("triggered");
+        if (iFrameTimer == 0f)
+        {
+            // only react if a hostile bullet
+            BulletController bulletOther = other.GetComponent<BulletController>();
+            if (bulletOther == null) return;
+            if (bulletOther.isFriendly()) return;
+
+            impulse.GenerateImpulseAtPositionWithVelocity(transform.position, bulletOther.getVelocity().normalized);
+            health -= 1;
+            print(health);
+            if (health <= 0) Destroy(gameObject);
+            iFrameTimer = 2f;
+        }
     }
 }
