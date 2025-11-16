@@ -118,6 +118,12 @@ public static class BulletLibrary
         float c = -1f * (targetInitialPosition - bulletInitialPosition).sqrMagnitude;
 
         float discriminant = b * b - 4f * a * c;
+        if (discriminant < 0f || Mathf.Abs(a) < 0.001f)
+        {
+            // no way for your bullets to actually hit the target (how the hell did we get here)
+            // just aim right at them and hope for the best
+            return (targetInitialPosition - bulletInitialPosition).normalized * bulletSpeed;
+        }
         float timeToImpact1 = (-b + Mathf.Sqrt(discriminant)) / (2f * a);
         float timeToImpact2 = (-b - Mathf.Sqrt(discriminant)) / (2f * a);
         float timeToImpact = Mathf.Min(timeToImpact1, timeToImpact2);
