@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using static BulletLibrary;
 
@@ -10,17 +11,33 @@ public class BulletSpawner : MonoBehaviour
     float bulletDeltaSpeed = 0f;
     float fireInterval = 0.000001f; // time between bullets
     float fireTimer = 0f;
+    bool active = true;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         if (bulletPrefab == null) Debug.LogError("BulletSpawner: No bullet prefab assigned");
         if (bulletPrefab.scene.IsValid()) Debug.LogError("BulletSpawner: Bullet prefab is in scene, not project assets");
+
+
     }
 
-    // Update is called once per frame
-    void Update()
+    void InitializeWith(GameObject newBulletPrefab, Vector2 newBulletDirection, float newBulletSpeed, float newFireInterval)
     {
+        bulletPrefab = newBulletPrefab;
+        bulletDirection = newBulletDirection;
+        bulletSpeed = newBulletSpeed;
+        fireInterval = newFireInterval;
+    }
+
+    public void setActivation(bool newActive)
+    {
+        active = newActive;
+    }
+
+    void FirePattern1()
+    {
+        if (!active) return;
         fireTimer += Time.deltaTime;
         if (fireTimer >= fireInterval)
         {
@@ -34,5 +51,12 @@ public class BulletSpawner : MonoBehaviour
             
             fireTimer = 0f;
         }
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+        FirePattern1();
     }
 }
