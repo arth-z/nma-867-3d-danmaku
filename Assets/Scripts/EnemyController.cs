@@ -9,9 +9,8 @@ public class EnemyController : MonoBehaviour
     float NORMAL_SPEED = 450f;
     Vector3 velocity = new Vector3(0, 0, 0);
     Vector3 accel;
-    float dashTimer = 0.3f;
-    float dashCoeff = 1f;
     float defenseiveMotionTimer = 0f;
+    float boundsMotionTimer = 0f;
     float phaseTimer = 0f;
     bool aggressive = false;
 
@@ -44,7 +43,7 @@ public class EnemyController : MonoBehaviour
 
     void MotionControl()
     {
-        transform.position += dashCoeff * Time.deltaTime * velocity + (0.5f * Time.deltaTime * Time.deltaTime * accel);
+        transform.position +=  Time.deltaTime * velocity + (0.5f * Time.deltaTime * Time.deltaTime * accel);
         // change velocity by acceleration
         velocity += accel * Time.deltaTime;
         // air resistance or something
@@ -60,11 +59,13 @@ public class EnemyController : MonoBehaviour
         if (phaseTimer > 9f && toPlayer.magnitude > 200f)
         {
             aggressive = true;
-        } else if (phaseTimer > 13f)
+            phaseTimer += Time.deltaTime * Random.Range(0.0f, 4f);
+        } else if (phaseTimer > 15f)
         {
             aggressive = false;
             phaseTimer = 0f;
         } 
+        
         if (aggressive)
         {
             Offensive();
@@ -104,7 +105,7 @@ public class EnemyController : MonoBehaviour
             accel = BulletLibrary.RandomOrthogonalVector(toPlayer).normalized * delta_speed;
         }
 
-        if (player.getDashCoeff() > 1.5f)
+        if (player.getDashCoeff() > 1.5f && distanceToPlayer < 300f)
         {
             accel = BulletLibrary.RandomOrthogonalVector(toPlayer).normalized * delta_speed * 1.5f;
         }
@@ -133,6 +134,16 @@ public class EnemyController : MonoBehaviour
             iFrameTimer -= Time.deltaTime;
             if (iFrameTimer < 0f) iFrameTimer = 0f;
         }
+    }
+
+    public void TakeDamage()
+    {
+        print("yowch");
+        health -= 1;
+        bulletSpawner.setIntensity(5-health);
+        aggressive = false;
+        phaseTimer = 0;
+        if (health <= 0) Destroy(gameObject);
     }
 
     // Update is called once per frame
@@ -177,7 +188,7 @@ public class EnemyController : MonoBehaviour
     public void DontHitTheGround()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, delta_speed * Time.deltaTime + 0.5f))
+        if (Physics.Raycast(transform.position, transform.forward.normalized, out hit, delta_speed * Time.deltaTime + 0.2f))
         {
             if (hit.collider.GetComponent<Terrain>() != null)
             {
@@ -189,11 +200,16 @@ public class EnemyController : MonoBehaviour
 
     public void DontEscapeBounds()
     {
-        Vector3 futurePos = (transform.position + transform.forward) * (delta_speed * Time.deltaTime + 0.5f);
+        boundsMotionTimer += Time.deltaTime;
+        if (boundsMotionTimer < 1.5f) return;
+
+        Vector3 toOrigin = (Vector3.zero - transform.position).normalized;
         // for now, a 3200x3200x3200 cube centered at origin
-        if (futurePos.magnitude > 1600f)
+        if (transform.position.x > 1600f || transform.position.x < -1600f ||
+            transform.position.y > 1600f || transform.position.y < -1600f ||
+            transform.position.z > 1600f || transform.position.z < -1600f)
         {
-            accel = -transform.forward.normalized + BulletLibrary.RandomOrthogonalVector(transform.forward).normalized * delta_speed;
+            accel = toOrigin * delta_speed;
         }
     }
 }

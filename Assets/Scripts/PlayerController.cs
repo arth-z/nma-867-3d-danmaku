@@ -33,11 +33,12 @@ public class PlayerController : MonoBehaviour
     bool dashing = false;
 
     // gameplay systems
-    int health = 10;
+    int health = 5;
     float iFrameTimer = 0f;
     CinemachineImpulseSource impulse;
     float attackTimer = 0f;
     float ATTACK_COOLDOWN = 3f;
+    float ATTACK_RANGE = 100f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -46,6 +47,7 @@ public class PlayerController : MonoBehaviour
         Cursor.visible = false;
 
         lookAction = InputSystem.actions.FindAction("Look");
+        Mouse.current.WarpCursorPosition(new Vector2(Screen.width / 2, Screen.height / 2)); // stay in the center of the screen
         moveHorizontal = InputSystem.actions.FindAction("MoveHorizontal");
         moveVertical = InputSystem.actions.FindAction("MoveVertical");
 
@@ -160,11 +162,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void AttackTimerUpdate()
-    {
-        attackTimer += Time.deltaTime;
-    }
-
     void IFrameUpdate()
     {
         if (iFrameTimer > 0f)
@@ -220,7 +217,27 @@ public class PlayerController : MonoBehaviour
     }
     void Attack()
     {
-        
+        if (attackTimer >= ATTACK_COOLDOWN)
+        {
+            Collider[] other = Physics.OverlapSphere(transform.position, ATTACK_RANGE);
+            if (other != null && other.Length > 0)
+            {
+                foreach (var collider in other)
+                {
+                    EnemyController enemy = collider.GetComponent<EnemyController>();
+                    if (enemy != null)
+                    {
+                        enemy.TakeDamage(); 
+                    }
+                }
+            }
+            attackTimer = 0; // small buffer to avoid multiple attacks in one frame
+        }
+    }
+
+    void AttackTimerUpdate()
+    {
+        attackTimer += Time.deltaTime;
     }
 
     public void TakeDamage(BulletController bulletOther)

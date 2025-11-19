@@ -113,7 +113,7 @@ public class BulletSpawner : MonoBehaviour
     {
         if (intensity == 0) return;
         float fireInterval = 0.0001f;
-        float bulletSpeed = 500f * (1 + (intensity / 6f));
+        float bulletSpeed = 500f * (1 + (intensity / 8f));
         fireTimer += Time.deltaTime;
         if (fireTimer >= fireInterval)
         {
