@@ -4,14 +4,13 @@ using static BulletLibrary;
 
 public class BulletSpawner : MonoBehaviour
 {
-    public GameObject bulletPrefab;
+    public GameObject[] bulletPrefabs;
     Vector2 bulletDirection = new Vector2(0f, 0f);
     PlayerController player;
     EnemyController controller;
     float angleOffset = 0f;
-    float bulletSpeed = 50f;
-    float fireInterval = 0.00001f; // time between bullets
     float fireTimer = 0f;
+    int intensity = 0;
     bool active = true;
 
     Action FirePattern;
@@ -19,18 +18,21 @@ public class BulletSpawner : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (bulletPrefab == null) Debug.LogError("BulletSpawner: No bullet prefab assigned");
-        if (bulletPrefab.scene.IsValid()) Debug.LogError("BulletSpawner: Bullet prefab is in scene, not project assets");
+        if (bulletPrefabs == null || bulletPrefabs.Length == 0) Debug.LogError("BulletSpawner: No bullet prefabs assigned");
+        foreach (var prefab in bulletPrefabs)
+        {
+            if (prefab.scene.IsValid()) Debug.LogError("BulletSpawner: Bullet prefab is in scene, not project assets");
+        }
     }
 
-    void InitializeWith(GameObject newBulletPrefab, Vector2 newBulletDirection, float newBulletSpeed, float newFireInterval)
+    public void setIntensity(int newIntensity)
     {
-        bulletPrefab = newBulletPrefab;
-        bulletDirection = newBulletDirection;
-        angleOffset = 0f;
-        bulletSpeed = newBulletSpeed;
-        fireInterval = newFireInterval;
+        intensity = newIntensity;
+    }
 
+    public int getIntensity()
+    {
+        return intensity;
     }
 
     public void setPlayer(PlayerController newPlayer)
@@ -55,31 +57,65 @@ public class BulletSpawner : MonoBehaviour
 
     public void FireBackBlast()
     {
+        float bulletSpeed = 50f;
+        float fireInterval = 0.00001f; 
+        float bulletLifespan = 5f;
         if (!active) return;
         fireTimer += Time.deltaTime;
         if (fireTimer >= fireInterval)
         {
             bulletDirection += new Vector2(11f, 7f);
 
-            // fire six "arms" of bullets more-or-less evenly distributed around itself, then increment their angles to make a spiral
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, bulletDirection, bulletSpeed, 10f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, -bulletDirection, bulletSpeed, 10f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, new Vector2(bulletDirection.x + 45, bulletDirection.y + 45), bulletSpeed, 10f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, new Vector2(bulletDirection.x - 45, bulletDirection.y - 45), bulletSpeed, 10f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, new Vector2(bulletDirection.x + 90, bulletDirection.y + 90), bulletSpeed, 10f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, new Vector2(bulletDirection.x - 90, bulletDirection.y - 90), bulletSpeed, 10f);
-            
+            // fire "arms" of bullets more-or-less evenly distributed around itself, then increment their angles to make a spiral
+            // well, i have a really bad intuition for 3d space so this is vaguely symmetrical and evenly distributed
+            // i think i see the classic 2D danmaku spiral here somewhere so good enough for me
+            if (intensity > 0)
+            {
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, bulletDirection, bulletSpeed, 10f);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, -bulletDirection, bulletSpeed, 10f);
+
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, new Vector2(bulletDirection.x + 45, bulletDirection.y + 45), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, new Vector2(bulletDirection.x - 45, bulletDirection.y - 45), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, new Vector2(bulletDirection.x + 90, bulletDirection.y + 90), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, new Vector2(bulletDirection.x - 90, bulletDirection.y - 90), bulletSpeed, bulletLifespan);   
+            }
+
+            if (intensity > 1)
+            {
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, new Vector2(bulletDirection.x + 45, -bulletDirection.y + 45), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, new Vector2(bulletDirection.x - 45, -bulletDirection.y - 45), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, new Vector2(bulletDirection.x + 90, -bulletDirection.y + 90), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[0], transform.position, new Vector2(bulletDirection.x - 90, -bulletDirection.y - 90), bulletSpeed, bulletLifespan);
+            }
+
+            if (intensity > 2)
+            {
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[1], transform.position, new Vector2(-bulletDirection.x + 45, bulletDirection.y + 45), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[1], transform.position, new Vector2(-bulletDirection.x - 45, bulletDirection.y - 45), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[1], transform.position, new Vector2(-bulletDirection.x + 90, bulletDirection.y + 90), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[1], transform.position, new Vector2(-bulletDirection.x - 90, bulletDirection.y - 90), bulletSpeed, bulletLifespan);
+            }
+
+            if (intensity > 3)
+            {
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position, new Vector2(-bulletDirection.x + 45, -bulletDirection.y + 45), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position, new Vector2(-bulletDirection.x - 45, -bulletDirection.y - 45), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position, new Vector2(-bulletDirection.x + 90, -bulletDirection.y + 90), bulletSpeed, bulletLifespan);
+                SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position, new Vector2(-bulletDirection.x - 90, -bulletDirection.y - 90), bulletSpeed, bulletLifespan);
+            }
+
+
             fireTimer = 0f;
         }
     }
 
-    public void FireLaser()
+    public void FireAimedStream()
     {
-        if (!active) return;
-        fireInterval = 0.001f;
-        bulletSpeed = 500f;
+        if (intensity == 0) return;
+        float fireInterval = 0.0001f;
+        float bulletSpeed = 500f * (1 + (intensity / 6f));
         fireTimer += Time.deltaTime;
-        if (fireTimer >= fireInterval/10)
+        if (fireTimer >= fireInterval)
         {
             float radius = 3f;
 
@@ -103,25 +139,29 @@ public class BulletSpawner : MonoBehaviour
             Vector3 pointOnPlane3 = tangent1 * (radius * Mathf.Cos(angleOffset)) - tangent2 * (radius * Mathf.Sin(angleOffset));
             Vector3 pointOnPlane4 = -tangent1 * (radius * Mathf.Cos(angleOffset)) - tangent2 * (radius * Mathf.Sin(angleOffset));
 
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position, direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position, direction, bulletSpeed, 20f);
 
             // outer ring
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position + pointOnPlane1, direction, bulletSpeed, 20f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position + pointOnPlane2, direction, bulletSpeed, 20f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position + pointOnPlane3, direction, bulletSpeed, 20f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position + pointOnPlane4, direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + pointOnPlane1, direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + pointOnPlane2, direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + pointOnPlane3, direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + pointOnPlane4, direction, bulletSpeed, 20f);
 
             // inner ring
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position + (pointOnPlane1 * 0.5f), direction, bulletSpeed, 20f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position + (pointOnPlane2 * 0.5f), direction, bulletSpeed, 20f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position + (pointOnPlane3 * 0.5f), direction, bulletSpeed, 20f);
-            SpawnBulletFixedSpeedAngle(bulletPrefab, transform.position + (pointOnPlane4 * 0.5f), direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + (pointOnPlane1 * 0.5f), direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + (pointOnPlane2 * 0.5f), direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + (pointOnPlane3 * 0.5f), direction, bulletSpeed, 20f);
+            SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + (pointOnPlane4 * 0.5f), direction, bulletSpeed, 20f);
 
             angleOffset += 7f;
             fireTimer = 0f;
         }
     }
 
+    public Action getFirePattern()
+    {
+        return FirePattern;
+    }
 
     // Update is called once per frame
     void Update()

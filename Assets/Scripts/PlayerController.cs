@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     float up = 0; // up/down
     float NORMAL_SPEED = 500f;
     float delta_speed;
+    float drag;
+    float AIR_RES = 5f;
+    Vector3 velocity = new Vector3(0, 0, 0);
     Vector3 accel;
 
     // dashing
@@ -29,17 +32,12 @@ public class PlayerController : MonoBehaviour
     float dashCoeff = 1f;
     bool dashing = false;
 
-    Rigidbody rb;
-    Collider col;
-
     // gameplay systems
     int health = 10;
     float iFrameTimer = 0f;
     CinemachineImpulseSource impulse;
-
-    float drag;
-    float AIR_RES = 5f;
-    Vector3 velocity = new Vector3(0, 0, 0);
+    float attackTimer = 0f;
+    float ATTACK_COOLDOWN = 3f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -72,8 +70,6 @@ public class PlayerController : MonoBehaviour
         delta_speed = NORMAL_SPEED;
         drag = AIR_RES;
 
-        rb = GetComponent<Rigidbody>();
-        col = GetComponent<Collider>();
         impulse = GetComponent<CinemachineImpulseSource>();
     }
 
@@ -164,6 +160,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void AttackTimerUpdate()
+    {
+        attackTimer += Time.deltaTime;
+    }
+
     void IFrameUpdate()
     {
         if (iFrameTimer > 0f)
@@ -215,20 +216,11 @@ public class PlayerController : MonoBehaviour
         DashUpdate();
         MotionControl();
         IFrameUpdate();
+        AttackTimerUpdate();
     }
-
-    // update is called after all Update functions have been called
-    void LateUpdate()
-    {
-
-    }
-
-    void FixedUpdate()
-    {
-    }
-
     void Attack()
     {
+        
     }
 
     public void TakeDamage(BulletController bulletOther)
