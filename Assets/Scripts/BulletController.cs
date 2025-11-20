@@ -15,7 +15,7 @@ public class BulletController : MonoBehaviour
     bool willExpire;
     bool friendly = false;
 
-    public AudioSource grazeSound;
+    //public AudioSource grazeSound;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -41,6 +41,7 @@ public class BulletController : MonoBehaviour
         }
     }
 
+    /*
     public void PlayGrazeSound(float grazeRadius)
     {
         grazeSound.pitch = Random.Range(0.8f, 1.2f);
@@ -51,6 +52,7 @@ public class BulletController : MonoBehaviour
         grazeSound.volume = 0.5f;
         grazeSound.Play();
     }
+    */
 
     public void updateVelocity()
     {

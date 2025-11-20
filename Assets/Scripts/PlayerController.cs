@@ -302,7 +302,7 @@ public class PlayerController : MonoBehaviour
                 BulletController bulletOther = col.GetComponent<BulletController>();
                 if (bulletOther != null)
                 {
-                    bulletOther.PlayGrazeSound(GRAZE_RADIUS);
+                    //bulletOther.PlayGrazeSound(GRAZE_RADIUS);
                 }
             }
             

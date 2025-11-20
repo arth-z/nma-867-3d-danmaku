@@ -26,13 +26,7 @@ https://pixabay.com/sound-effects/gunshot-377280/
 
 Other:
 
-flyby.wav from samples by Elevenlabs.io, presumably synthesized/AI-generated:
-https://elevenlabs.io/sound-effects/bullet-fly-by
-
-hardshot.wav by JynX/Trick Nostalgie, originally from their 連縁Project / 鏈縁Project (Len'en Project) freeware danmaku games:
-https://drive.google.com/file/d/1yxdlEuouekcAOVYemOCNLmBDGdkAz7zB/view
-
-hardshot.wav by JynX/Trick Nostalgie, originally from their 連縁Project / 鏈縁Project (Len'en Project) freeware danmaku games:
+hardshot.wav and softshot.wav by JynX/Trick Nostalgie, originally from their 連縁Project / 鏈縁Project (Len'en Project) freeware danmaku games:
 https://drive.google.com/file/d/1yxdlEuouekcAOVYemOCNLmBDGdkAz7zB/view
 
 Len'en Project download: https://mugentrick.tubakurame.com/Game.html
