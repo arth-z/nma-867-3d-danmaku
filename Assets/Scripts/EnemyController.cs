@@ -13,7 +13,9 @@ public class EnemyController : MonoBehaviour
     float boundsMotionTimer = 0f;
     float phaseTimer = 0f;
     bool aggressive = false;
+    bool retreating = false;
 
+    // bullet spawner
     public BulletSpawner bulletSpawner;
 
     // gameplay systems
@@ -26,6 +28,11 @@ public class EnemyController : MonoBehaviour
     // you!
     public GameObject playerObject;
     PlayerController player;
+
+    // some audio
+    public AudioSource damageSound;
+    public AudioSource dashSound;
+    public AudioSource aggressivePhaseSound;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -65,7 +72,7 @@ public class EnemyController : MonoBehaviour
             aggressive = false;
             phaseTimer = 0f;
         } 
-        
+
         if (aggressive)
         {
             Offensive();
@@ -105,13 +112,19 @@ public class EnemyController : MonoBehaviour
             accel = BulletLibrary.RandomOrthogonalVector(toPlayer).normalized * delta_speed;
         }
 
-        if (player.getDashCoeff() > 1.5f && distanceToPlayer < 300f)
+        if (player.getDashCoeff() > 1.5f && distanceToPlayer < 300f && !retreating)
         {
+            dashSound.pitch = Random.Range(0.8f, 1.2f);
+            dashSound.Play();
             accel = BulletLibrary.RandomOrthogonalVector(toPlayer).normalized * delta_speed * 1.5f;
+            retreating = true;
         }
 
         if (defenseiveMotionTimer > 3f)
         {
+            retreating = false;
+            dashSound.pitch = Random.Range(0.8f, 1.2f);
+            dashSound.Play();
             accel += BulletLibrary.RandomOrthogonalVector(toPlayer).normalized * delta_speed;
             defenseiveMotionTimer = 0f;
         }
@@ -138,9 +151,16 @@ public class EnemyController : MonoBehaviour
 
     public void TakeDamage()
     {
-        print("yowch");
+        if (iFrameTimer != 0f) return;
+        iFrameTimer = 2f; // 2 seconds of invulnerability
+        
         health -= 1;
-        bulletSpawner.setIntensity(5-health);
+
+        bulletSpawner.setIntensity(5-health); // amplify bullet pattern intensity
+
+        damageSound.pitch = Random.Range(0.8f, 1.2f);
+        damageSound.Play();
+
         aggressive = false;
         phaseTimer = 0;
         if (health <= 0) Destroy(gameObject);
@@ -188,12 +208,11 @@ public class EnemyController : MonoBehaviour
     public void DontHitTheGround()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward.normalized, out hit, delta_speed * Time.deltaTime + 0.2f))
+        if (Physics.Raycast(transform.position, transform.forward.normalized, out hit, delta_speed * (Time.deltaTime + 0.2f)))
         {
             if (hit.collider.GetComponent<Terrain>() != null)
             {
-                accel = BulletLibrary.RandomOrthogonalVector(transform.forward).normalized * delta_speed;
-
+                accel = (Vector3.up + BulletLibrary.RandomOrthogonalVector(Vector3.up)).normalized * delta_speed;
             }
         }
     }
@@ -206,7 +225,7 @@ public class EnemyController : MonoBehaviour
         Vector3 toOrigin = (Vector3.zero - transform.position).normalized;
         // for now, a 3200x3200x3200 cube centered at origin
         if (transform.position.x > 1600f || transform.position.x < -1600f ||
-            transform.position.y > 1600f || transform.position.y < -1600f ||
+            transform.position.y > 1600f || transform.position.y < -1500f ||
             transform.position.z > 1600f || transform.position.z < -1600f)
         {
             accel = toOrigin * delta_speed;

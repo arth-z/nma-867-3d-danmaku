@@ -1,0 +1,38 @@
+pixabay sound assets:
+
+bwamp.wav by Leszek_Szary from:
+https://pixabay.com/sound-effects/game-teleport-90735/
+
+fwuzmp.wav by Temp6754 from:
+https://pixabay.com/sound-effects/jump-climb-or-damage-sound-f-95942/
+
+vibraphone.wav by PhonosUPF from:
+https://pixabay.com/sound-effects/vibraphone-attack-41908/
+
+camera.wav by chieuk from:
+https://pixabay.com/sound-effects/search/camera/
+
+hum.wav by freesound_community from:
+https://pixabay.com/sound-effects/mechanical-hum-64405/
+
+damage.wav by freesound_community from:
+https://pixabay.com/sound-effects/large-explosion-1-43636/
+
+hardshot.wav by freesound_community from:
+https://pixabay.com/sound-effects/gunshot-37055/
+
+softshot.wav by Paul (PWLPL) from:
+https://pixabay.com/sound-effects/gunshot-377280/
+
+Other:
+
+flyby.wav from samples by Elevenlabs.io, presumably synthesized/AI-generated:
+https://elevenlabs.io/sound-effects/bullet-fly-by
+
+hardshot.wav by JynX/Trick Nostalgie, originally from their 連縁Project / 鏈縁Project (Len'en Project) freeware danmaku games:
+https://drive.google.com/file/d/1yxdlEuouekcAOVYemOCNLmBDGdkAz7zB/view
+
+hardshot.wav by JynX/Trick Nostalgie, originally from their 連縁Project / 鏈縁Project (Len'en Project) freeware danmaku games:
+https://drive.google.com/file/d/1yxdlEuouekcAOVYemOCNLmBDGdkAz7zB/view
+
+Len'en Project download: https://mugentrick.tubakurame.com/Game.html

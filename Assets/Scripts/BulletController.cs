@@ -1,4 +1,3 @@
-using Unity.Mathematics;
 using UnityEngine;
 
 public class BulletController : MonoBehaviour
@@ -14,22 +13,15 @@ public class BulletController : MonoBehaviour
 
     float lifespan;
     bool willExpire;
-
-    Collider col;
-    Rigidbody rb;
-
     bool friendly = false;
+
+    public AudioSource grazeSound;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         transform.forward = velocity.normalized; // face the direction you're going
-    }
-
-    void Awake()
-    {
-        rb = GetComponent<Rigidbody>();
-        col = GetComponent<Collider>();
     }
 
     void Move()
@@ -47,6 +39,17 @@ public class BulletController : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    public void PlayGrazeSound(float grazeRadius)
+    {
+        grazeSound.pitch = Random.Range(0.8f, 1.2f);
+        grazeSound.minDistance = 0f;
+        grazeSound.maxDistance = grazeRadius*2f;
+        grazeSound.rolloffMode = AudioRolloffMode.Linear;
+        grazeSound.spatialBlend = 1.0f; // 3D sound
+        grazeSound.volume = 0.5f;
+        grazeSound.Play();
     }
 
     public void updateVelocity()

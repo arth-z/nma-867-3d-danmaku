@@ -30,15 +30,25 @@ public class PlayerController : MonoBehaviour
     // dashing
     float dashTimer = 0.3f;
     float dashCoeff = 1f;
+    float timeUntilNextDash = 0f;
     bool dashing = false;
+    public AudioSource dashSound;
 
     // gameplay systems
     int health = 5;
     float iFrameTimer = 0f;
     CinemachineImpulseSource impulse;
-    float attackTimer = 0f;
+    float attackTimer;
+    public GameObject attackPrefab;
     float ATTACK_COOLDOWN = 3f;
-    float ATTACK_RANGE = 100f;
+    float ATTACK_RANGE = 150f;
+    float ATTACK_DURATION = 0.6f;
+    float ATTACK_TURN_SPEED = 2f;
+    float GRAZE_RADIUS = 10f;
+    Vector3 attackDirection = Vector3.zero;
+    public AudioSource damageSound;
+    public AudioSource attackSound;
+    PlayerAttack playerAttack;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -71,8 +81,10 @@ public class PlayerController : MonoBehaviour
 
         delta_speed = NORMAL_SPEED;
         drag = AIR_RES;
+        attackTimer = ATTACK_COOLDOWN; // can attack immediately
 
         impulse = GetComponent<CinemachineImpulseSource>();
+
     }
 
     void MouseLook()
@@ -139,17 +151,23 @@ public class PlayerController : MonoBehaviour
 
     void Dash()
     {
+        if (timeUntilNextDash > 0f) return;
         if (dashTimer >= 0.3f) dashTimer = 0f;
         dashing = true;
+        dashSound.pitch = Random.Range(0.8f, 1.2f);
+        dashSound.Play();
     }
 
     void StopDash()
     {
         dashing = false;
+        timeUntilNextDash = 0.1f; // 0.1s dash cooldown
     }
 
     void DashUpdate()
     {
+        timeUntilNextDash -= Time.deltaTime;
+        if (timeUntilNextDash < 0f) timeUntilNextDash = 0f;
         if (dashTimer < 0.3f)
         {
             dashTimer += Time.deltaTime;
@@ -213,25 +231,34 @@ public class PlayerController : MonoBehaviour
         DashUpdate();
         MotionControl();
         IFrameUpdate();
+        TryToAimAttack();
         AttackTimerUpdate();
+        //GrazeUpdate();
     }
     void Attack()
     {
         if (attackTimer >= ATTACK_COOLDOWN)
         {
-            Collider[] other = Physics.OverlapSphere(transform.position, ATTACK_RANGE);
-            if (other != null && other.Length > 0)
-            {
-                foreach (var collider in other)
-                {
-                    EnemyController enemy = collider.GetComponent<EnemyController>();
-                    if (enemy != null)
-                    {
-                        enemy.TakeDamage(); 
-                    }
-                }
-            }
-            attackTimer = 0; // small buffer to avoid multiple attacks in one frame
+            playerAttack = Instantiate(attackPrefab, transform.position, Quaternion.LookRotation(attackDirection)).GetComponent<PlayerAttack>();
+
+            // position and direction regulated in TryToAimAttack(), as well as in PlayerAttack's Update()
+            playerAttack.setLifespan(ATTACK_DURATION);
+            playerAttack.setMaxScale(ATTACK_RANGE);
+            playerAttack.setFollow(gameObject);
+            playerAttack.transform.forward = attackDirection;
+
+            attackSound.pitch = Random.Range(0.8f, 1.2f);
+            attackSound.Play();
+            attackTimer = 0; 
+        }
+    }
+
+    void TryToAimAttack()
+    {
+        attackDirection = Vector3.MoveTowards(attackDirection, transform.forward, ATTACK_TURN_SPEED * Time.deltaTime).normalized;
+        if (playerAttack != null)
+        {
+            playerAttack.setDirection(attackDirection);
         }
     }
 
@@ -247,8 +274,9 @@ public class PlayerController : MonoBehaviour
             impulse.GenerateImpulseAtPositionWithVelocity(transform.position, bulletOther.getVelocity().normalized);
             health -= 1;
             print(health);
-            if (health <= 0) Destroy(gameObject);
+            damageSound.Play();
             iFrameTimer = 2f;
+            if (health <= 0) Destroy(gameObject);
         }
     }
 
@@ -260,5 +288,24 @@ public class PlayerController : MonoBehaviour
         if (bulletOther == null) return;
         if (bulletOther.isFriendly()) return;
         TakeDamage(bulletOther);
+    }
+
+    public void GrazeUpdate()
+    {
+        Collider[] grazedColliders = Physics.OverlapSphere(transform.position, GRAZE_RADIUS);
+
+        if (grazedColliders.Length > 0)
+        {
+            
+            foreach (Collider col in grazedColliders)
+            {
+                BulletController bulletOther = col.GetComponent<BulletController>();
+                if (bulletOther != null)
+                {
+                    bulletOther.PlayGrazeSound(GRAZE_RADIUS);
+                }
+            }
+            
+        }
     }
 }
