@@ -179,10 +179,7 @@ public class BulletSpawner : MonoBehaviour
             SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + (pointOnPlane3 * 0.5f), direction, bulletSpeed, bulletLifespan);
             SpawnBulletFixedSpeedAngle(bulletPrefabs[2], transform.position + (pointOnPlane4 * 0.5f), direction, bulletSpeed, bulletLifespan);
 
-            // so fun fact, because i dont have an upper bound on angleOffset2, this creates that famous 'accelerating spiral' danmaku pattern you see often in 2d games
-            // essentially a spiral pattern is a ring shot out with its angle offset incrementing over time - if you gradually increment the increment of that rotation, you get an accelerating spiral
-            // when that speed accelerates (and you're using degrees i guess), you can get some beautiful effects due to how a) 360 is an extremely composite number and b) angle rotation is basically modulo 360
-            // in the Touhou Project series of games, the pattern is colloquially known as "BoWaP" - Boundary of Wave and Particle
+            // spiiiiral
             for (int i = 0; i < 360; i += 9)
             {
                 SpawnBulletFixedSpeedDirection(bulletPrefabs[2], transform.position, tangent1 * Mathf.Cos((i + angleOffset2) * Mathf.Deg2Rad) + tangent2 * Mathf.Sin((i + angleOffset2) * Mathf.Deg2Rad), bulletSpeed/5, bulletLifespan);

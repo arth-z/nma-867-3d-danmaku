@@ -180,7 +180,9 @@ public class EnemyController : MonoBehaviour
 
         aggressive = false;
         phaseTimer = 0;
-        if (health <= 0) Destroy(gameObject);
+        if (health <= 0) {
+            Destroy(gameObject);
+        }
     }
 
     // Update is called once per frame
@@ -251,5 +253,10 @@ public class EnemyController : MonoBehaviour
         {
             accel = toOrigin * delta_speed;
         }
+    }
+
+    public void OnDestroy()
+    {
+        lifeDisplay.text = "0";
     }
 }

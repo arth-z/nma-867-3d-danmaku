@@ -295,6 +295,9 @@ public class PlayerController : MonoBehaviour
             iFrameTimer = 2f;
             if (health <= 0) {
                 lifeDisplay.text = "0";
+                Destroy(gameObject.transform.Find("PlayerCinemachine").gameObject);
+                damageSound.transform.parent = null;
+                gameObject.transform.Find("PlayerCamera").parent = null;
                 Destroy(gameObject);
             }
         }
@@ -309,6 +312,7 @@ public class PlayerController : MonoBehaviour
         if (bulletOther.isFriendly()) return;
         TakeDamage(bulletOther);
     }
+
 
     public void GrazeUpdate()
     {
