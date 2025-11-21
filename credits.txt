@@ -30,3 +30,9 @@ hardshot.wav and softshot.wav by JynX/Trick Nostalgie, originally from their 連
 https://drive.google.com/file/d/1yxdlEuouekcAOVYemOCNLmBDGdkAz7zB/view
 
 Len'en Project download: https://mugentrick.tubakurame.com/Game.html
+
+flashlight icon: https://www.veryicon.com/icons/miscellaneous/qianniu-icon-library/flashlight-31.html
+
+heart icon: https://www.veryicon.com/icons/object/material-design-icons-1/heart-62.html
+
+offscreen arrow indicators to show direction to enemy from: https://github.com/jinincarnate/off-screen-indicator, also on the Unity Asset Store

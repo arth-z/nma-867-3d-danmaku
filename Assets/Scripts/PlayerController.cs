@@ -1,6 +1,8 @@
+using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -50,6 +52,12 @@ public class PlayerController : MonoBehaviour
     public AudioSource attackSound;
     PlayerAttack playerAttack;
 
+    public GameObject UI;
+    TextMeshProUGUI lifeDisplay;
+    RawImage attackDisplay;
+
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -84,7 +92,15 @@ public class PlayerController : MonoBehaviour
         attackTimer = ATTACK_COOLDOWN; // can attack immediately
 
         impulse = GetComponent<CinemachineImpulseSource>();
+        lifeDisplay = UI.transform.Find("LifeDisplay").gameObject.GetComponent<TextMeshProUGUI>();
+        attackDisplay = UI.transform.Find("AttackDisplay").gameObject.GetComponent<RawImage>();
 
+    }
+
+    void UpdateUI()
+    {
+        lifeDisplay.text = health.ToString();
+        attackDisplay.color = new Color(1f, 1f, 1f,attackTimer / ATTACK_COOLDOWN);
     }
 
     void MouseLook()
@@ -233,6 +249,7 @@ public class PlayerController : MonoBehaviour
         IFrameUpdate();
         TryToAimAttack();
         AttackTimerUpdate();
+        UpdateUI();
         //GrazeUpdate();
     }
     void Attack()
@@ -276,7 +293,10 @@ public class PlayerController : MonoBehaviour
             print(health);
             damageSound.Play();
             iFrameTimer = 2f;
-            if (health <= 0) Destroy(gameObject);
+            if (health <= 0) {
+                lifeDisplay.text = "0";
+                Destroy(gameObject);
+            }
         }
     }
 

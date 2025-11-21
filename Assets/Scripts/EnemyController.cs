@@ -1,5 +1,6 @@
-using Unity.Cinemachine;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour
 {
@@ -32,7 +33,12 @@ public class EnemyController : MonoBehaviour
     // some audio
     public AudioSource damageSound;
     public AudioSource dashSound;
-    public AudioSource aggressivePhaseSound;
+
+    // UI
+    public GameObject UI;
+    TextMeshProUGUI lifeDisplay;
+
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -46,6 +52,17 @@ public class EnemyController : MonoBehaviour
         bulletSpawner.setPlayer(player);
         bulletSpawner.setController(this);
         bulletSpawner.SetPatternToFire(bulletSpawner.FireBackBlast);
+        lifeDisplay = UI.transform.Find("EnemyDisplay").gameObject.GetComponent<TextMeshProUGUI>();
+    }
+
+    void UpdateUI()
+    {
+        lifeDisplay.text = health.ToString();
+        
+        // point this arrow at the enemy on the forwards-sideways plane
+        Vector3 toEnemy = (transform.position - player.getPosition());
+        toEnemy.y = 0f; // flatten to XZ plane
+
     }
 
     void MotionControl()
@@ -174,6 +191,7 @@ public class EnemyController : MonoBehaviour
         IFrameUpdate();
         DontHitTheGround();
         DontEscapeBounds();
+        UpdateUI();
     }
 
     // update is called after all Update functions have been called
@@ -200,8 +218,11 @@ public class EnemyController : MonoBehaviour
             if (!bulletOther.isFriendly()) return;
             health -= 1;
             print(health);
-            if (health <= 0) Destroy(gameObject);
             iFrameTimer = 2f;
+            if (health <= 0) {
+                lifeDisplay.text = "0";
+                Destroy(gameObject);
+            }
         }
     }
 
