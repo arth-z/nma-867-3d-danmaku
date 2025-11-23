@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour
     float ATTACK_COOLDOWN = 3f;
     float ATTACK_RANGE = 150f;
     float ATTACK_DURATION = 0.6f;
-    float ATTACK_TURN_SPEED = 2f;
+    float ATTACK_TURN_SPEED = 3f;
     float GRAZE_RADIUS = 10f;
     Vector3 attackDirection = Vector3.zero;
     public AudioSource damageSound;
