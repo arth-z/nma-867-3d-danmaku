@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 
 public class TerrainController : MonoBehaviour
 {
@@ -25,3 +25,4 @@ public class TerrainController : MonoBehaviour
         
     }
 }
+*/

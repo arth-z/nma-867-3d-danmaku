@@ -1,7 +1,9 @@
+using System.Collections;
 using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
@@ -46,7 +48,7 @@ public class PlayerController : MonoBehaviour
     float ATTACK_RANGE = 150f;
     float ATTACK_DURATION = 0.6f;
     float ATTACK_TURN_SPEED = 3f;
-    float GRAZE_RADIUS = 10f;
+    //float GRAZE_RADIUS = 10f;
     Vector3 attackDirection = Vector3.zero;
     public AudioSource damageSound;
     public AudioSource attackSound;
@@ -56,7 +58,7 @@ public class PlayerController : MonoBehaviour
     TextMeshProUGUI lifeDisplay;
     RawImage attackDisplay;
 
-
+    public AudioSource music;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -95,6 +97,10 @@ public class PlayerController : MonoBehaviour
         lifeDisplay = UI.transform.Find("LifeDisplay").gameObject.GetComponent<TextMeshProUGUI>();
         attackDisplay = UI.transform.Find("AttackDisplay").gameObject.GetComponent<RawImage>();
 
+        music.Play();
+        music.loop = true;
+        ScoreManager.timeTaken = 0f;
+        ScoreManager.hitsTaken = 0;
     }
 
     void UpdateUI()
@@ -250,7 +256,7 @@ public class PlayerController : MonoBehaviour
         TryToAimAttack();
         AttackTimerUpdate();
         UpdateUI();
-        //GrazeUpdate();
+        ScoreTimerUpdate();
     }
     void Attack()
     {
@@ -267,7 +273,22 @@ public class PlayerController : MonoBehaviour
             attackSound.pitch = Random.Range(0.8f, 1.2f);
             attackSound.Play();
             attackTimer = 0; 
+
+            // take a picture, lol
+            StartCoroutine(ScreenshotCoroutine());
         }
+    }
+
+    // hahahahahahaha funny screenshot go brrr
+    // no seriously this is really funny it's like 3AM and i unironically spent time on this game mechanic
+    // I LOVE TOUHOU 9.5 ~ SHOOT THE BULLET!!!!
+    IEnumerator ScreenshotCoroutine()
+    {
+        yield return new WaitForEndOfFrame();
+        Texture2D screenImage = ScreenCapture.CaptureScreenshotAsTexture();
+
+        // send the texture to score manager
+        ScoreManager.photoList.Add(screenImage);
     }
 
     void TryToAimAttack()
@@ -284,21 +305,28 @@ public class PlayerController : MonoBehaviour
         attackTimer += Time.deltaTime;
     }
 
+    void ScoreTimerUpdate()
+    {
+        ScoreManager.timeTaken += Time.deltaTime;
+    }
+
     public void TakeDamage(BulletController bulletOther)
     {
         if (iFrameTimer == 0f)
         {
             impulse.GenerateImpulseAtPositionWithVelocity(transform.position, bulletOther.getVelocity().normalized);
             health -= 1;
-            print(health);
+
             damageSound.Play();
+
             iFrameTimer = 2f;
+
+            ScoreManager.hitsTaken += 1;
+
             if (health <= 0) {
                 lifeDisplay.text = "0";
-                Destroy(gameObject.transform.Find("PlayerCinemachine").gameObject);
-                damageSound.transform.parent = null;
-                gameObject.transform.Find("PlayerCamera").parent = null;
-                Destroy(gameObject);
+                ScoreManager.victory = false;
+                SceneManager.LoadScene("Score");
             }
         }
     }
@@ -313,23 +341,4 @@ public class PlayerController : MonoBehaviour
         TakeDamage(bulletOther);
     }
 
-
-    public void GrazeUpdate()
-    {
-        Collider[] grazedColliders = Physics.OverlapSphere(transform.position, GRAZE_RADIUS);
-
-        if (grazedColliders.Length > 0)
-        {
-            
-            foreach (Collider col in grazedColliders)
-            {
-                BulletController bulletOther = col.GetComponent<BulletController>();
-                if (bulletOther != null)
-                {
-                    //bulletOther.PlayGrazeSound(GRAZE_RADIUS);
-                }
-            }
-            
-        }
-    }
 }

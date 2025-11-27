@@ -1,6 +1,6 @@
-using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EnemyController : MonoBehaviour
 {
@@ -181,7 +181,9 @@ public class EnemyController : MonoBehaviour
         aggressive = false;
         phaseTimer = 0;
         if (health <= 0) {
-            Destroy(gameObject);
+            lifeDisplay.text = "0";
+            ScoreManager.victory = true;
+            SceneManager.LoadScene("Score");
         }
     }
 
@@ -223,7 +225,8 @@ public class EnemyController : MonoBehaviour
             iFrameTimer = 2f;
             if (health <= 0) {
                 lifeDisplay.text = "0";
-                Destroy(gameObject);
+                ScoreManager.victory = true;
+                SceneManager.LoadScene("Results");
             }
         }
     }

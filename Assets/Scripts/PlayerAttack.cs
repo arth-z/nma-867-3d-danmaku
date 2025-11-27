@@ -52,19 +52,19 @@ public class PlayerAttack : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other != null)
-            {
-                EnemyController enemy = other.GetComponent<EnemyController>();
-                if (enemy != null)
-                {
-                    enemy.TakeDamage(); 
-                }
+        if (other == null) return;  
+        EnemyController enemy = other.GetComponent<EnemyController>();
+        if (enemy != null)
+        {
+            enemy.TakeDamage(); 
+        }
 
-                BulletController bullet = other.GetComponent<BulletController>();
-                if (bullet != null)
-                {
-                    Destroy(bullet.gameObject);
-                }
-            }
+        BulletController bullet = other.GetComponent<BulletController>();
+        if (bullet != null)
+        {
+            Destroy(bullet.gameObject);
+        }
+            
     }
+
 }

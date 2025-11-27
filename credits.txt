@@ -24,11 +24,20 @@ https://pixabay.com/sound-effects/gunshot-37055/
 softshot.wav by Paul (PWLPL) from:
 https://pixabay.com/sound-effects/gunshot-377280/
 
+fail.mp3 by u_8g40a9z0la from:
+https://pixabay.com/sound-effects/fail-234710/
+
 Other:
 
-hardshot.wav and softshot.wav by JynX/Trick Nostalgie, originally from their 
+hardshot.wav, softshot.wav, and woohoo.wav by JynX/Trick Nostalgie, originally from their 
 連縁Project / 鏈縁Project (Len'en Project) freeware danmaku games:
 https://drive.google.com/file/d/1yxdlEuouekcAOVYemOCNLmBDGdkAz7zB/view
+
+background music (eternal_force.flac):
+"Alternative Empire Power ~ Eternal Force" by CryptidCapra/Miko, a remix of "エンパイアパワー　〜 Eternal_Force" by Trick Nostalgie (JynX).
+Both links can be found here:
+https://cryptidcapra.bandcamp.com/track/alternative-empire-power-eternal-force
+https://www.youtube.com/watch?v=44_QaTr0gws
 
 Len'en Project download: https://mugentrick.tubakurame.com/Game.html
 
